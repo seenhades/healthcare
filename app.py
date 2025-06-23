@@ -40,8 +40,41 @@ supplement_descriptions = {
     "鉻": "促進胰島素作用，穩定血糖。",
     "肉桂萃取": "改善胰島素敏感性，調節血糖。",
     "白腎豆萃取": "抑制澱粉分解，幫助控糖。",
-    "螺旋藻": "天然抗氧化，提升免疫力，減輕過敏反應。"
+    "螺旋藻": "天然抗氧化，提升免疫力，減輕過敏反應。",
+    # 新增個人化調整中用到的成分
+    "鈣質": "強化骨骼結構，預防骨質疏鬆。",
+    "維生素D": "促進鈣吸收，維持骨骼健康。",
+    "黑升麻": "緩解女性更年期症狀，調節荷爾蒙。",
+    "大豆異黃酮": "植物性雌激素，有助女性更年期健康。"
 }
+
+def adjust_recommendations(recommended, age, gender, pregnant, chronic):
+    warnings = []
+
+    # 老年人加強骨骼保養
+    if age >= 65:
+        recommended.add("鈣質")
+        recommended.add("維生素D")
+
+    # 女性更年期（45-60歲女性）建議骨骼與荷爾蒙調節
+    if gender == "女" and 45 <= age <= 60:
+        recommended.add("黑升麻")
+        recommended.add("大豆異黃酮")
+
+    # 孕婦避免特定成分
+    if pregnant:
+        if "褪黑激素" in recommended:
+            recommended.remove("褪黑激素")
+            warnings.append("⚠️ 褪黑激素孕婦不建議使用")
+        # 可在此擴充其他孕婦禁忌
+
+    # 慢性病避免紅麴
+    if chronic and "紅麴" in recommended:
+        recommended.remove("紅麴")
+        warnings.append("⚠️ 紅麴不適合有肝臟或慢性病問題者")
+
+    return recommended, warnings
+
 
 st.title("🧬 個人化保健食品建議問卷")
 
@@ -70,14 +103,8 @@ if st.button("🔍 產生建議"):
             for item in recommendation_rules[goal]:
                 recommended.add(item)
 
-        # 排除條件提示
-        warnings = []
-        if pregnant and "褪黑激素" in recommended:
-            recommended.remove("褪黑激素")
-            warnings.append("⚠️ 褪黑激素孕婦不建議使用")
-        if chronic and "紅麴" in recommended:
-            recommended.remove("紅麴")
-            warnings.append("⚠️ 紅麴不適合有肝臟或慢性病問題者")
+        # 依年齡、性別、特殊狀況調整推薦
+        recommended, warnings = adjust_recommendations(recommended, age, gender, pregnant, chronic)
 
         # 顯示推薦成分與說明
         for supp in recommended:
