@@ -83,7 +83,17 @@ if st.button("🔍 產生建議"):
         for goal in health_goals:
             for item in recommendation_rules[goal]:
                 recommended.add(item)
+ 
+        # 個人化加權建議（依年齡、性別）
+        if gender == "男":
+            recommended.add("鋅")
+            if age >= 40:
+                recommended.add("瑪卡")
+        if gender == "女" and age >= 45:
+            recommended.add("膠原蛋白")
+            recommended.add("維生素D")
 
+        
         # 排除條件提示
         warnings = []
         if pregnant and "褪黑激素" in recommended:
